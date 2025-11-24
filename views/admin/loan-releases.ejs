@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Releases | BOCOFAMCO Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            min-height: 100vh;
+        }
+        
+        .main-content {
+            margin-left: 280px;
+            padding: 30px;
+            transition: margin-left 0.3s ease;
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1e3a8a;
+        }
+        
+        .search-container {
+            position: relative;
+            max-width: 400px;
+            width: 100%;
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6b7280;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 12px 12px 12px 45px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background-color: white;
+            font-size: 14px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #1e3a8a;
+            box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+        }
+        
+        .loans-table-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+        
+        .loans-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .loans-table th {
+            background-color: #f9fafb;
+            color: #1e3a8a;
+            font-weight: 600;
+            text-align: left;
+            padding: 15px 20px;
+            border-bottom: 2px solid #e5e7eb;
+            font-size: 14px;
+        }
+        
+        .loans-table td {
+            padding: 15px 20px;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 14px;
+            color: #4b5563;
+        }
+        
+        .loans-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .loans-table tr:hover td {
+            background-color: #f9fafb;
+        }
+        
+        .cb-number {
+            font-weight: 600;
+            color: #1e3a8a;
+        }
+        
+        .amount {
+            font-weight: 500;
+            color: #1e40af;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .action-btn {
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        
+        .schedule-btn {
+            color: #5b21b6;
+        }
+        
+        .schedule-btn:hover {
+            background-color: rgba(91, 33, 182, 0.1);
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-top: 20px;
+            gap: 10px;
+        }
+        
+        .pagination-btn {
+            background-color: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .pagination-btn:hover {
+            background-color: #f9fafb;
+        }
+        
+        .pagination-btn.active {
+            background-color: #1e3a8a;
+            color: white;
+            border-color: #1e3a8a;
+        }
+        
+        .pagination-text {
+            font-size: 14px;
+            color: #6b7280;
+        }
+        
+        .table-responsive {
+            overflow-x: auto;
+        }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 900px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1e3a8a;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6b7280;
+        }
+        
+        .close-modal:hover {
+            color: #1e3a8a;
+        }
+        
+        .payment-schedule-section {
+            background-color: #f5f3ff;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #ddd6fe;
+        }
+        
+        .payment-schedule-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #5b21b6;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .payment-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 13px;
+        }
+        
+        .payment-table th, .payment-table td {
+            padding: 10px 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd6fe;
+        }
+        
+        .payment-table th {
+            background-color: #ede9fe;
+            font-weight: 600;
+            color: #5b21b6;
+            font-size: 12px;
+        }
+        
+        .payment-table tr:nth-child(even) {
+            background-color: #f5f3ff;
+        }
+        
+        .payment-table tr:hover {
+            background-color: #ede9fe;
+        }
+        
+        .payment-summary {
+            margin-top: 20px;
+            font-weight: 600;
+            color: #5b21b6;
+            font-size: 14px;
+        }
+        
+        .payment-summary span {
+            font-weight: 700;
+        }
+        
+        .payment-status-legend {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.75rem;
+            color: #4a4e69;
+        }
+        
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .legend-color.paid { background-color: #4cc9f0; }
+        .legend-color.pending { background-color: #f48c06; }
+        .legend-color.unpaid { background-color: #f72585; }
+        .legend-color.overdue { background-color: #9d0208; }
+        .legend-color.failed { background-color: #d00000; }
+        
+        .payment-loading {
+            text-align: center;
+            padding: 20px;
+            color: #6b7280;
+        }
+        
+        .payment-loading i {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            animation: spin 1s linear infinite;
+        }
+        
+        .status-paid { color: #4cc9f0; font-weight: 500; }
+        .status-pending { color: #f48c06; font-weight: 500; }
+        .status-unpaid { color: #f72585; font-weight: 500; }
+        .status-overdue { color: #9d0208; font-weight: 500; }
+        .status-failed { color: #d00000; font-weight: 500; }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+            
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .search-container {
+                max-width: 100%;
+            }
+            
+            .loans-table th, 
+            .loans-table td {
+                padding: 12px 15px;
+            }
+            
+            .modal-content {
+                width: 95%;
+                padding: 15px;
+            }
+            
+            .payment-table {
+                font-size: 11px;
+            }
+            
+            .payment-table th,
+            .payment-table td {
+                padding: 8px 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <% const currentPage = 'loan-releases'; %>
+    <%- include('../partials/adminsidebar', { currentPage }) %>
+    
+    <div class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">Loan Releases</h1>
+            
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="searchInput" class="search-input" placeholder="Search loans...">
+            </div>
+        </div>
+        
+        <div class="loans-table-container">
+            <div class="table-responsive">
+                <table class="loans-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>CB Number</th>
+                            <th>Loan Type</th>
+                            <th>Loan Amount</th>
+                            <th>Service Fee</th>
+                            <th>Processing Fee</th>
+                            <th>Total Deductions</th>
+                            <th>Loan Received</th>
+                            <th>Take Home</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="loansTableBody">
+                        <% loans.forEach(loan => { %>
+                            <tr>
+                                <td><%= loan.id %></td>
+                                <td class="cb-number"><%= loan.cb_number %></td>
+                                <td><%= loan.loan_type %></td>
+                                <td class="amount">₱<%= parseFloat(loan.loan_amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></td>
+                                <td class="amount">₱<%= parseFloat(loan.service_fee || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></td>
+                                <td class="amount">₱<%= parseFloat(loan.processing_fee || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></td>
+                                <td class="amount">₱<%= parseFloat(loan.total_deductions || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></td>
+                                <td class="amount">₱<%= parseFloat(loan.total_loan_received || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></td>
+                                <td class="amount">₱<%= parseFloat(loan.take_home_amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %></td>
+                                <td><%= new Date(loan.transaction_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) %></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="action-btn schedule-btn" 
+                                                title="View Payment Schedule"
+                                                data-loan-id="<%= loan.id %>"
+                                                data-loan-type="<%= loan.loan_type %>"
+                                                data-loan-amount="<%= loan.loan_amount %>"
+                                                data-transaction-date="<%= loan.transaction_date %>"
+                                                onclick="showPaymentSchedule(this)">
+                                            <i class="fas fa-calendar-alt"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="pagination">
+            <span class="pagination-text">Showing 1-<%= loans.length %> of <%= loans.length %> entries</span>
+            <button class="pagination-btn"><i class="fas fa-chevron-left"></i></button>
+            <button class="pagination-btn active">1</button>
+            <button class="pagination-btn"><i class="fas fa-chevron-right"></i></button>
+        </div>
+        
+        <!-- Payment Schedule Modal -->
+        <div class="modal" id="paymentScheduleModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Payment Schedule</h2>
+                    <button class="close-modal" onclick="closeModal()">&times;</button>
+                </div>
+                <div class="payment-schedule-section">
+                    <div class="payment-schedule-title">PAYMENT SCHEDULE</div>
+                    <div id="paymentScheduleContainer">
+                        <p>Payment schedule will be displayed here.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('#loansTableBody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        });
+
+        function showPaymentSchedule(button) {
+            const modal = document.getElementById('paymentScheduleModal');
+            const container = document.getElementById('paymentScheduleContainer');
+            
+            // Get data from button attributes
+            const loanId = button.getAttribute('data-loan-id');
+            const loanType = button.getAttribute('data-loan-type');
+            const loanAmount = button.getAttribute('data-loan-amount');
+            const transactionDate = button.getAttribute('data-transaction-date');
+
+            // Show loading state
+            container.innerHTML = `
+                <div class="payment-loading">
+                    <i class="fas fa-spinner"></i>
+                    <p>Loading payment schedule...</p>
+                </div>
+            `;
+            modal.style.display = 'flex';
+
+            // Validate loan amount
+            const amount = parseFloat(loanAmount) || 0;
+            if (amount <= 0) {
+                container.innerHTML = '<p>No valid loan amount provided.</p>';
+                return;
+            }
+
+            // URL encode the loan type to handle slashes (e.g., "Regular/Agricultural")
+            const encodedLoanType = encodeURIComponent(loanType);
+            
+            // Fetch payment status from server
+            fetch(`/payment/status/${loanId}/${encodedLoanType}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        generatePaymentScheduleWithStatus(loanId, loanType, amount, transactionDate, data.payments || []);
+                    } else {
+                        container.innerHTML = '<p>Error fetching payment data. Please try again later.</p>';
+                        console.error('Fetch error:', data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching payment status:', error);
+                    // Fallback to basic schedule without status
+                    generateBasicPaymentSchedule(loanType, amount, transactionDate);
+                });
+        }
+
+        function generatePaymentScheduleWithStatus(loanId, loanType, loanAmount, transactionDate, existingPayments) {
+            const container = document.getElementById('paymentScheduleContainer');
+            container.innerHTML = '';
+
+            const loanTermMonths = loanAmount >= 100000 ? 24 : 12;
+            const isRegular = loanType.toLowerCase().includes('agricultural') || loanType.toLowerCase().includes('regular');
+            
+            const interestRate = isRegular ? 0.03 : 0.01;
+            const paymentFrequency = isRegular ? 'monthly' : 'semi-monthly';
+            const paymentsPerMonth = isRegular ? 1 : 2;
+            const totalPayments = loanTermMonths * paymentsPerMonth;
+            const principalPerPayment = Math.round(loanAmount / totalPayments);
+            const paymentIntervalDays = isRegular ? 30 : 15;
+            const interestLabel = isRegular ? 'Interest (3%)' : 'Interest (1%)';
+
+            let remainingBalance = loanAmount;
+            let totalInterest = 0;
+            let totalPayment = 0;
+
+            const currentDate = new Date();
+            const startDate = transactionDate ? new Date(transactionDate) : new Date();
+            startDate.setDate(startDate.getDate() + paymentIntervalDays);
+
+            // Create payment status map
+            const paymentStatusMap = {};
+            existingPayments.forEach(payment => {
+                const sequence = payment.payment_sequence || 1;
+                if (!paymentStatusMap[sequence] || new Date(payment.created_at) > new Date(paymentStatusMap[sequence].created_at)) {
+                    paymentStatusMap[sequence] = payment;
+                }
+            });
+
+            let paidPayments = 0;
+            let pendingPayments = 0;
+            let unpaidPayments = 0;
+            let overduePayments = 0;
+            let failedPayments = 0;
+
+            // Add legend
+            const legend = document.createElement('div');
+            legend.className = 'payment-status-legend';
+            legend.innerHTML = `
+                <div class="legend-item"><div class="legend-color paid"></div><span>Paid</span></div>
+                <div class="legend-item"><div class="legend-color pending"></div><span>Pending</span></div>
+                <div class="legend-item"><div class="legend-color unpaid"></div><span>Unpaid</span></div>
+                <div class="legend-item"><div class="legend-color overdue"></div><span>Overdue</span></div>
+                <div class="legend-item"><div class="legend-color failed"></div><span>Failed</span></div>
+            `;
+            container.appendChild(legend);
+
+            // Create table
+            const table = document.createElement('table');
+            table.className = 'payment-table';
+
+            const thead = document.createElement('thead');
+            const headerRow = document.createElement('tr');
+            ['#', 'Due Date', 'Principal', interestLabel, 'Total', 'Balance', 'Status', 'Reference'].forEach(text => {
+                const th = document.createElement('th');
+                th.textContent = text;
+                headerRow.appendChild(th);
+            });
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
+
+            const tbody = document.createElement('tbody');
+
+            for (let payment = 0; payment < totalPayments; payment++) {
+                const sequence = payment + 1;
+                const interest = Math.round(remainingBalance * interestRate);
+                const totalPerPayment = principalPerPayment + interest;
+
+                totalInterest += interest;
+                totalPayment += totalPerPayment;
+
+                const dueDate = new Date(startDate);
+                dueDate.setDate(startDate.getDate() + payment * paymentIntervalDays);
+
+                let paymentStatus = 'Unpaid';
+                let statusClass = 'status-unpaid';
+                let referenceNumber = '';
+
+                if (paymentStatusMap[sequence]) {
+                    const paymentRecord = paymentStatusMap[sequence];
+                    // Get reference number from payment record
+                    referenceNumber = paymentRecord.reference_number || paymentRecord.gcash_reference || paymentRecord.atm_card_last4 || paymentRecord.otc_check_number || '';
+                    
+                    if (paymentRecord.status === 'Completed') {
+                        paymentStatus = 'Paid';
+                        statusClass = 'status-paid';
+                        paidPayments++;
+                    } else if (paymentRecord.status === 'Pending') {
+                        paymentStatus = 'Pending';
+                        statusClass = 'status-pending';
+                        pendingPayments++;
+                    } else if (paymentRecord.status === 'Failed') {
+                        paymentStatus = 'Failed';
+                        statusClass = 'status-failed';
+                        failedPayments++;
+                    }
+                } else if (dueDate < currentDate) {
+                    paymentStatus = 'Overdue';
+                    statusClass = 'status-overdue';
+                    overduePayments++;
+                } else {
+                    unpaidPayments++;
+                }
+
+                const row = document.createElement('tr');
+
+                const cells = [
+                    sequence,
+                    dueDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
+                    '₱' + principalPerPayment.toLocaleString(),
+                    '₱' + interest.toLocaleString(),
+                    '₱' + totalPerPayment.toLocaleString(),
+                    '₱' + Math.max(0, remainingBalance - principalPerPayment).toLocaleString()
+                ];
+
+                cells.forEach((content, index) => {
+                    const td = document.createElement('td');
+                    td.textContent = content;
+                    if (index === 0) td.style.fontWeight = '600';
+                    if (index === 4) td.style.fontWeight = '500';
+                    row.appendChild(td);
+                });
+
+                const statusCell = document.createElement('td');
+                statusCell.textContent = paymentStatus;
+                statusCell.className = statusClass;
+                row.appendChild(statusCell);
+
+                const refCell = document.createElement('td');
+                refCell.textContent = referenceNumber || '-';
+                refCell.style.fontSize = '0.7rem';
+                refCell.style.color = '#6b7280';
+                row.appendChild(refCell);
+
+                tbody.appendChild(row);
+                remainingBalance = Math.max(0, remainingBalance - principalPerPayment);
+            }
+
+            table.appendChild(tbody);
+            container.appendChild(table);
+
+            // Add summary
+            const summary = document.createElement('div');
+            summary.className = 'payment-summary';
+            summary.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <div>
+                        <p>Loan Term: <span>${loanTermMonths} months</span></p>
+                        <p>Total Payments: <span>${totalPayments}</span></p>
+                        <p>Frequency: <span>${paymentFrequency}</span></p>
+                    </div>
+                    <div>
+                        <p>Paid: <span style="color: #4cc9f0">${paidPayments}</span></p>
+                        <p>Pending: <span style="color: #f48c06">${pendingPayments}</span></p>
+                        <p>Overdue: <span style="color: #9d0208">${overduePayments}</span></p>
+                        <p>Failed: <span style="color: #d00000">${failedPayments}</span></p>
+                    </div>
+                    <div>
+                        <p>Principal/Payment: <span>₱${principalPerPayment.toLocaleString()}</span></p>
+                        <p>Total Interest: <span>₱${totalInterest.toLocaleString()}</span></p>
+                        <p>Total: <span>₱${totalPayment.toLocaleString()}</span></p>
+                    </div>
+                </div>
+            `;
+            container.appendChild(summary);
+        }
+
+        function generateBasicPaymentSchedule(loanType, loanAmount, transactionDate) {
+            const container = document.getElementById('paymentScheduleContainer');
+            container.innerHTML = '';
+
+            const loanTermMonths = loanAmount >= 100000 ? 24 : 12;
+            const isRegular = loanType.toLowerCase().includes('agricultural') || loanType.toLowerCase().includes('regular');
+            const interestRate = isRegular ? 0.03 : 0.01;
+            const totalPayments = isRegular ? loanTermMonths : loanTermMonths * 2;
+            const principalPerPayment = Math.round(loanAmount / totalPayments);
+            const paymentIntervalDays = isRegular ? 30 : 15;
+
+            const startDate = transactionDate ? new Date(transactionDate) : new Date();
+            startDate.setDate(startDate.getDate() + paymentIntervalDays);
+
+            let remainingBalance = loanAmount;
+
+            const table = document.createElement('table');
+            table.className = 'payment-table';
+
+            const thead = document.createElement('thead');
+            const headerRow = document.createElement('tr');
+            ['#', 'Due Date', 'Principal', 'Interest', 'Total', 'Balance', 'Status', 'Reference'].forEach(text => {
+                const th = document.createElement('th');
+                th.textContent = text;
+                headerRow.appendChild(th);
+            });
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
+
+            const tbody = document.createElement('tbody');
+
+            for (let payment = 0; payment < totalPayments; payment++) {
+                const interest = Math.round(remainingBalance * interestRate);
+                const dueDate = new Date(startDate);
+                dueDate.setDate(startDate.getDate() + payment * paymentIntervalDays);
+
+                const row = document.createElement('tr');
+                const cells = [
+                    payment + 1,
+                    dueDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+                    '₱' + principalPerPayment.toLocaleString(),
+                    '₱' + interest.toLocaleString(),
+                    '₱' + (principalPerPayment + interest).toLocaleString(),
+                    '₱' + Math.max(0, remainingBalance - principalPerPayment).toLocaleString(),
+                    'N/A',
+                    '-'
+                ];
+
+                cells.forEach(content => {
+                    const td = document.createElement('td');
+                    td.textContent = content;
+                    row.appendChild(td);
+                });
+
+                tbody.appendChild(row);
+                remainingBalance = Math.max(0, remainingBalance - principalPerPayment);
+            }
+
+            table.appendChild(tbody);
+            container.appendChild(table);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('paymentScheduleModal');
+            modal.style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('paymentScheduleModal').addEventListener('click', function(event) {
+            if (event.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
